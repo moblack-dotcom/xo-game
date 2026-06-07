@@ -314,7 +314,7 @@
   <div class="username-card">
     <div class="username-emoji">🎮</div>
     <div class="username-title">مرحباً باللاعب!</div>
-    <div class="username-sub">حط اسمك أو نكنيمك عشان يظهر في الليدربورد</div>
+    <div class="username-sub">اكتب اسمك عشان تظهر في قائمة الأفضل 🏆</div>
     <input class="username-input" id="usernameInput" type="text" placeholder="اسمك هنا..." maxlength="20" />
     <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;" onclick="startGame()">ابدأ اللعب 🚀</button>
     <div class="username-skip" onclick="startGame()">تخطى — العب بدون اسم</div>
@@ -405,40 +405,66 @@
 
 <script>
   // ===== SUPABASE =====
-  // ===== LEADERBOARD (Local) =====
-  function savePlay(username, result, country) {
+  // ===== SUPABASE =====
+  const SUPABASE_URL = 'https://cmkdavsafqfwqctspnaa.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNta2RhdnNhZnFmd3FjdHNwbmFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NzU3NTksImV4cCI6MjA5NjM1MTc1OX0.ckqsVUKDA7wcdtJQKiUfVcQioNFA0xU_nBDwKZK_39I';
+
+  const SCORE_MAP = { easy: 10, medium: 25, hard: 50 };
+
+  async function savePlay(username, result, country) {
     if (result !== 'win') return;
-    const data = JSON.parse(localStorage.getItem('xo_leaderboard') || '[]');
-    data.push({ username: username || 'زائر', country: country || '🌍', date: Date.now() });
-    localStorage.setItem('xo_leaderboard', JSON.stringify(data));
+    const score = SCORE_MAP[difficulty] || 10;
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/plays`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ username: username || 'زائر', score, country })
+      });
+    } catch(e) { console.error('savePlay error:', e); }
   }
 
-  function loadLeaderboard() {
-    const data = JSON.parse(localStorage.getItem('xo_leaderboard') || '[]');
-    if (data.length === 0) {
-      document.getElementById('leaderboard').innerHTML = '<div class="lb-empty">لا يوجد فائزون بعد — كن الأول! 🏆</div>';
-      return;
+  async function loadLeaderboard() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/plays?select=username,score,country&order=score.desc&limit=100`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        document.getElementById('leaderboard').innerHTML = '<div class="lb-empty">لا يوجد فائزون بعد — كن الأول! 🏆</div>';
+        return;
+      }
+      const counts = {};
+      data.forEach(r => {
+        const key = r.username || 'زائر';
+        if (!counts[key]) counts[key] = { score: 0, country: r.country };
+        counts[key].score += r.score;
+      });
+      const sorted = Object.entries(counts).sort((a,b) => b[1].score - a[1].score).slice(0, 5);
+      const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+      document.getElementById('leaderboard').innerHTML = sorted.map(([name, d], i) =>
+        `<div class="lb-row">
+          <span class="lb-rank">${medals[i]}</span>
+          <span class="lb-name">${name}</span>
+          <span class="lb-country">${d.country || '🌍'}</span>
+          <span class="lb-wins">${d.score} ⭐</span>
+        </div>`
+      ).join('');
+    } catch(e) {
+      document.getElementById('leaderboard').innerHTML = '<div class="lb-empty">تعذّر تحميل الليدربورد</div>';
     }
-    const counts = {};
-    data.forEach(r => {
-      const key = r.username || 'زائر';
-      if (!counts[key]) counts[key] = { wins: 0, country: r.country };
-      counts[key].wins++;
-    });
-    const sorted = Object.entries(counts).sort((a,b) => b[1].wins - a[1].wins).slice(0, 5);
-    const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
-    document.getElementById('leaderboard').innerHTML = sorted.map(([name, d], i) =>
-      `<div class="lb-row">
-        <span class="lb-rank">${medals[i]}</span>
-        <span class="lb-name">${name}</span>
-        <span class="lb-country">${d.country || '🌍'}</span>
-        <span class="lb-wins">${d.wins} 🏆</span>
-      </div>`
-    ).join('');
   }
 
-  function getUserCountry() {
-    return Promise.resolve('🌍');
+  async function getUserCountry() {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      return data.country_name || '🌍';
+    } catch(e) { return '🌍'; }
   }
 
   // ===== SOUND =====
@@ -620,8 +646,7 @@
         document.getElementById('xScore').textContent = scores.x;
         setStatus('win-x', '🎉 فزت!');
         playSound('win');
-        savePlay(currentUser, 'win', userCountry);
-        loadLeaderboard();
+        savePlay(currentUser, 'win', userCountry).then(() => loadLeaderboard());
         setTimeout(() => showOverlay('🏆','فزت!','أحسنت! الـ AI لم يستطع إيقافك'), 700);
       } else {
         scores.o++;
