@@ -22,11 +22,6 @@
   body {
     font-family: 'Tajawal', sans-serif;
     background: var(--bg);
-    background-image: url('bg.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     color: var(--text);
     min-height: 100vh;
     display: flex;
@@ -316,6 +311,33 @@
     <div class="username-title">مرحباً باللاعب!</div>
     <div class="username-sub">اكتب اسمك عشان تظهر في قائمة الأفضل 🏆</div>
     <input class="username-input" id="usernameInput" type="text" placeholder="اسمك هنا..." maxlength="20" />
+    <select class="username-input" id="countrySelect" style="margin-bottom:16px; cursor:pointer;">
+      <option value="🌍">🌍 اختر دولتك</option>
+      <option value="🇸🇦">🇸🇦 السعودية</option>
+      <option value="🇦🇪">🇦🇪 الإمارات</option>
+      <option value="🇰🇼">🇰🇼 الكويت</option>
+      <option value="🇶🇦">🇶🇦 قطر</option>
+      <option value="🇧🇭">🇧🇭 البحرين</option>
+      <option value="🇴🇲">🇴🇲 عُمان</option>
+      <option value="🇾🇪">🇾🇪 اليمن</option>
+      <option value="🇯🇴">🇯🇴 الأردن</option>
+      <option value="🇸🇾">🇸🇾 سوريا</option>
+      <option value="🇱🇧">🇱🇧 لبنان</option>
+      <option value="🇮🇶">🇮🇶 العراق</option>
+      <option value="🇪🇬">🇪🇬 مصر</option>
+      <option value="🇱🇾">🇱🇾 ليبيا</option>
+      <option value="🇹🇳">🇹🇳 تونس</option>
+      <option value="🇩🇿">🇩🇿 الجزائر</option>
+      <option value="🇲🇦">🇲🇦 المغرب</option>
+      <option value="🇸🇩">🇸🇩 السودان</option>
+      <option value="🇵🇸">🇵🇸 فلسطين</option>
+      <option value="🇹🇷">🇹🇷 تركيا</option>
+      <option value="🇬🇧">🇬🇧 بريطانيا</option>
+      <option value="🇺🇸">🇺🇸 أمريكا</option>
+      <option value="🇩🇪">🇩🇪 ألمانيا</option>
+      <option value="🇫🇷">🇫🇷 فرنسا</option>
+      <option value="🌍">🌍 أخرى</option>
+    </select>
     <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;" onclick="startGame()">ابدأ اللعب 🚀</button>
     <div class="username-skip" onclick="startGame()">تخطى — العب بدون اسم</div>
   </div>
@@ -362,6 +384,7 @@
   </div>
 
   <div class="status x-turn" id="status">دورك — ✕</div>
+  <div style="font-size:22px; font-weight:900; letter-spacing:2px; color:var(--x-color); text-shadow: 0 0 15px var(--x-glow);" id="timer">⏱️ 60</div>
   <div class="ai-thinking" id="aiThinking">
     <span>AI يفكر</span>
     <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -386,10 +409,47 @@
     <button class="btn" onclick="resetAll()">↺ إعادة الكل</button>
   </div>
 
+  <!-- Stats -->
+  <div class="leaderboard" id="statsBox">
+    <div class="lb-title">📊 إحصائياتك</div>
+    <div style="display:flex; justify-content:space-around; padding:8px 0;">
+      <div style="text-align:center;">
+        <div style="font-size:22px;">🏆</div>
+        <div style="font-size:20px; font-weight:900; color:var(--x-color);" id="statWins">0</div>
+        <div style="font-size:11px; color:var(--muted);">فوز</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;">😔</div>
+        <div style="font-size:20px; font-weight:900; color:var(--o-color);" id="statLosses">0</div>
+        <div style="font-size:11px; color:var(--muted);">خسارة</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;">🤝</div>
+        <div style="font-size:20px; font-weight:900; color:var(--muted);" id="statTies">0</div>
+        <div style="font-size:11px; color:var(--muted);">تعادل</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;">⚡</div>
+        <div style="font-size:20px; font-weight:900; color:#ffd700;" id="statFastest">--</div>
+        <div style="font-size:11px; color:var(--muted);">أسرع فوز</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;">🔥</div>
+        <div style="font-size:20px; font-weight:900; color:#ff6b35;" id="statStreak">0</div>
+        <div style="font-size:11px; color:var(--muted);">streak</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Leaderboard -->
   <div class="leaderboard">
     <div class="lb-title">🏆 أفضل اللاعبين</div>
     <div id="leaderboard"><div class="lb-empty">جاري التحميل...</div></div>
+  </div>
+
+  <!-- Developer Credit -->
+  <div style="text-align:center; padding: 16px 0; color: var(--muted); font-size: 13px; letter-spacing: 1px;">
+    By Mohammad alrifai
   </div>
 </div>
 
@@ -529,12 +589,58 @@
   let scores = { x: 0, o: 0, tie: 0 };
   let currentUser = '';
   let userCountry = '🌍';
+  let timerInterval = null;
+  let timeLeft = 60;
+  let stats = { wins: 0, losses: 0, ties: 0, fastest: null };
+  let streak = 0;
 
   const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+  function updateStats() {
+    document.getElementById('statWins').textContent = stats.wins;
+    document.getElementById('statLosses').textContent = stats.losses;
+    document.getElementById('statTies').textContent = stats.ties;
+    document.getElementById('statFastest').textContent = stats.fastest !== null ? stats.fastest + 'ث' : '--';
+    document.getElementById('statStreak').textContent = streak;
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 60;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      if (gameOver) { clearInterval(timerInterval); return; }
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        gameOver = true;
+        scores.tie++;
+        document.getElementById('tieScore').textContent = scores.tie;
+        setStatus('tie', '⏰ انتهى الوقت!');
+        playSound('tie');
+        savePlay(currentUser, 'tie', userCountry);
+        setTimeout(() => showOverlay('⏰', 'انتهى الوقت!', 'كان عندك 60 ثانية!'), 500);
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const el = document.getElementById('timer');
+    el.textContent = '⏱️ ' + timeLeft;
+    if (timeLeft <= 10) {
+      el.style.color = 'var(--x-color)';
+      el.style.animation = 'dotBounce 0.5s ease-in-out infinite';
+    } else {
+      el.style.color = 'var(--o-color)';
+      el.style.animation = 'none';
+    }
+  }
 
   function startGame() {
     const input = document.getElementById('usernameInput').value.trim();
     currentUser = input || 'زائر';
+    userCountry = document.getElementById('countrySelect').value || '🌍';
     document.getElementById('usernameScreen').style.display = 'none';
     if (input) {
       document.getElementById('greetName').textContent = input;
@@ -542,6 +648,7 @@
     }
     getUserCountry().then(c => { userCountry = c; });
     loadLeaderboard();
+    startTimer();
   }
 
   document.getElementById('usernameInput').addEventListener('keydown', e => {
@@ -639,17 +746,30 @@
 
     const winLine = checkWinner(board);
     if (winLine) {
+      clearInterval(timerInterval);
       highlightWin();
       gameOver = true;
       if (winLine === 'X') {
         scores.x++;
+        stats.wins++;
+        streak++;
+        const timeTaken = 60 - timeLeft;
+        if (stats.fastest === null || timeTaken < stats.fastest) stats.fastest = timeTaken;
+        updateStats();
         document.getElementById('xScore').textContent = scores.x;
         setStatus('win-x', '🎉 فزت!');
         playSound('win');
         savePlay(currentUser, 'win', userCountry).then(() => loadLeaderboard());
-        setTimeout(() => showOverlay('🏆','فزت!','أحسنت! الـ AI لم يستطع إيقافك'), 700);
+        let overlayMsg = 'أحسنت! الـ AI لم يستطع إيقافك';
+        if (streak === 3) overlayMsg = '🔥 3 انتصارات متتالية!';
+        else if (streak === 5) overlayMsg = '🔥🔥 5 انتصارات! أنت محترف!';
+        else if (streak >= 7) overlayMsg = '👑 أسطورة! ' + streak + ' انتصارات!';
+        setTimeout(() => showOverlay('🏆', 'فزت!', overlayMsg), 700);
       } else {
         scores.o++;
+        stats.losses++;
+        streak = 0;
+        updateStats();
         document.getElementById('oScore').textContent = scores.o;
         setStatus('win-o', '🤖 فاز AI');
         playSound('lose');
@@ -657,8 +777,11 @@
         setTimeout(() => showOverlay('🤖','فاز الذكاء الاصطناعي','حاول مرة أخرى!'), 700);
       }
     } else if (!board.includes(null)) {
+      clearInterval(timerInterval);
       gameOver = true;
       scores.tie++;
+      stats.ties++;
+      updateStats();
       document.getElementById('tieScore').textContent = scores.tie;
       setStatus('tie', '🤝 تعادل!');
       playSound('tie');
@@ -714,6 +837,7 @@
     setStatus('x-turn','دورك — ✕');
     document.getElementById('scoreX').classList.toggle('active-player', true);
     document.getElementById('scoreO').classList.toggle('active-player', false);
+    startTimer();
   }
 
   function resetAll() {
